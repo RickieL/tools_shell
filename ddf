@@ -26,7 +26,11 @@ if [ ! -s $Filename ];then
 fi
 
 # 前面已验证文件存在，所以目录必存在
-Path=$(dirname $Filename)
+FilePath=$(dirname $Filename)
+
+# 创建Filename的目录，为后面方便合并
+Path=${FilePath}/${Filename}_ddf
+mkdir -p $Path
 
 # 文件的字节数
 Filesize=$(du -b $Filename |awk '{print $1}')
