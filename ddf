@@ -29,7 +29,7 @@ fi
 FilePath=$(dirname $Filename)
 
 # 创建Filename的目录，为后面方便合并
-Path=${FilePath}/${Filename}_ddf
+Path=${FilePath}/${Filename}.ddf
 mkdir -p $Path
 
 # 文件的字节数
