@@ -4,6 +4,7 @@
 # 默认每个文件512MB
 # 第一个参数是文件名，第二个参数是分割后每个文件的大小。
 # 第二个参数的单位为KB
+# 生成的文件格式为： filename.1.ddf filename.2.ddf 等
 # author: yongfu (rickie622 at gmail dot com)
 
 # usage: ddf filename [subsize(kb)]
