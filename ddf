@@ -15,11 +15,11 @@ if [ $# -eq 0 ] || [ $# -gt 2 ]; then
     exit 1
 fi
 
-#使用脚本是第一参数是要分割的文件名
+# 使用脚本是第一参数是要分割的文件名
 Filename=$1 
 Filesize=0
 
-#验证文件名是否正确，然后计算文件的大小
+# 验证文件名是否正确，文件大小是否为0
 if [ ! -s $Filename ];then
     echo "Error:The file is not exsit or the file is empty."
     exit 1
