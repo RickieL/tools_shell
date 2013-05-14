@@ -1,0 +1,55 @@
+#!/bin/sh
+
+# 初始化变量
+FileBaseName=''    #文件名
+MyddfInfoFlag=0    #myddf.info文件存在标志
+FileFlag=0         # a.1.ddf文件存在标志
+
+## 得到文件名和目录
+FileName=$1
+Path=$(pwd)
+# 判断输入的文件名是否为空 
+if [ -z $FileName ]; then
+	if [ -f $Path/myddf.info ]; then
+		MyddfInfoFlag=1
+	else
+		echo "错误：没有找到 $Path/myddf.info 文件"
+		exit 1
+	fi
+else
+	FileBaseName=$(basename $FileName)
+	if [ -f $Path/$FileBaseName.1.ddf ];then
+		FileFlag=1
+	else
+		echo "错误：没有 $FileBaseName.1.ddf 文件"
+		exit 1
+	fi
+fi
+
+# 读取myddf.info信息，判断第一个dff是否存在
+if [ $MyddfInfoFlag -eq 1 ]; then
+	FileBaseName=$(head -n 1 $Path/myddf.info  |awk '{print $2}')
+	if [ -f $Path/$FileBaseName.1.ddf ];then
+		FileFlag=1
+	else
+		echo "错误：没有 $FileBaseName.1.ddf 文件"
+		exit 1
+	fi
+fi
+
+# 得到文件列表（考虑到超过10个文件情况下文件的排序问题） #到该步可以确定文件肯定存在
+FileList=$(ls -1 $FileBaseName.*.ddf |awk -F'.' '{if($(NF-1) ~ /^[1-9][0-9]*$/) print $(NF-1),$0;}' |sort -n |awk '{print $2}')
+
+# 替换原由的FileName
+FileName=$FileBaseName
+
+# 合并文件
+# 判断原来的文件是否存在，若存在则后缀+1，最多10个文件
+for i in $(seq 1 10)
+do
+    if [ -f $FileName ]; then
+	    FileName=$FileBaseName.$i
+    fi
+done
+
+cat $FileList > $FileName

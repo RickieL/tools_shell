@@ -1,0 +1,99 @@
+#!/bin/sh
+#######################################################
+# ddf分割文件命令
+# 第一个参数是文件名，第二个参数是分割后每个文件的大小
+# 第二个参数的单位为MB
+# 默认每块的大小1M=1024*1024=1048576，即分割文件最小需大于1M
+# 默认每个文件512MB
+# 分割后文件格式为： filename.1.ddf filename.2.ddf ...
+#
+# author: yongfu (rickie622 at gmail dot com)
+#
+# usage: ddf filename [subsize(MB)]
+#
+#######################################################
+
+# 判断参数个数
+if [ $# -eq 0 ] || [ $# -gt 2 ]; then
+    echo "usage: ddf filename [subsize(MB)]"
+    exit 1
+fi
+
+# 使用脚本是第一参数是要分割的文件名
+Filename=$1 
+Filesize=0
+
+# 验证文件名是否正确，文件大小是否为0
+if [ ! -s $Filename ];then
+    echo "Error:The file is not exsit or the file is empty."
+    exit 1
+fi
+
+# 前面已验证文件存在，所以目录必存在
+FilePath=$(dirname $Filename)
+FileBaseName=$(basename $Filename)
+
+# 创建Filename的目录，为后面方便合并
+Path=${FilePath}/${FileBaseName}.ddf
+mkdir -p $Path
+
+MyddfInfo=$Path/myddf.info
+MyddfLog=$Path/myddf.log
+
+# 文件的字节数(Byte)
+Filesize=$(du -b $Filename |awk '{print $1}')
+
+# 判断脚本的第二个参数
+InputSubsize=$2
+if [ -z $InputSubsize ]; then
+    # 默认值512M
+    Subsize=512
+else
+    # 判断是否为整数
+    if [[ $InputSubsize =~ ^[1-9][0-9]*$ ]]; then
+        Subsize=$InputSubsize
+    else
+        echo "usage: ddf filename [subsize(MB)]"
+        echo "The second argument should be an integer!"
+        exit 1
+    fi
+fi
+
+#计算需要分割为几个文件
+SubfileByte=$(expr $Subsize \* 1024 \* 1024 )
+Subfilenum=$(expr $Filesize / $SubfileByte )
+Subfilemod=$(expr $Filesize % $SubfileByte )
+if [ $Subfilemod -ne 0 ];then
+    Subfilenum=$(expr $Subfilenum + 1)
+fi
+
+# 若文件本身比分隔值还小，则不分割
+if [ $Filesize -le $SubfileByte ]; then
+    echo "usage: ddf filename [subsize(MB)]"
+    echo "The second argument should be smaller than the filesize."
+    exit 1
+fi
+
+#将文件分割
+echo "$Filename will be divided into *$Subfilenum* pieces" >> $MyddfLog
+i=1
+skipnum=0
+while [ $i -le $Subfilenum ]
+do
+    echo "$FileBaseName.$i.ddf" >>  $MyddfLog
+    dd if=$Filename of="$Path/$FileBaseName.$i.ddf" bs=1048576 count=$Subsize skip=$skipnum >> $MyddfLog 2>&1
+    i=$(expr $i + 1)
+    skipnum=$(expr $skipnum + $Subsize)
+done
+echo "$Filename has been divided into $Subfilenum" >>  $MyddfLog
+echo "Done !" >>  $MyddfLog
+
+# 生成myddf.info文件
+Md5sum=$(md5sum $Filename |awk '{print $1}')
+
+echo "filename $FileBaseName" >> $MyddfInfo
+echo "filesize $Filesize" >> $MyddfInfo
+echo "md5sum $Md5sum" >> $MyddfInfo
+echo "subfilenum $Subfilenum" >> $MyddfInfo
+echo "subfilesize $SubfileByte" >> $MyddfInfo
+
