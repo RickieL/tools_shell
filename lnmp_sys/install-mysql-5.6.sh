@@ -1,5 +1,9 @@
 #!/bin/sh
 
+OneSpt=$1
+SrcDir=/opt/app/src
+if [ "x$OneSpt" != "x1script" ] ;then
+do
 # 创建用户
 groupadd mysql  -g 27
 useradd -g mysql mysql  -u 27 -s /bin/false
@@ -7,7 +11,7 @@ groupadd www  -g 600
 useradd -g www www  -u 600 -s /bin/false
 
 # 创建目录
-mkdir -p /opt/app/src
+mkdir -p $SrcDir
 mkdir -p /opt/app/pcre
 mkdir -p /data/mysql
 mkdir -p /var/lib/mysql
@@ -24,24 +28,23 @@ chown -R 777 /tmp/phpsession
 yum install -y wget gcc-c++ ncurses-devel ncurses make perl
 
 # 将所有软件包复制到源文件src目录
-cp -rf Packages/* /opt/app/src
+cp -rf Packages/* $SrcDir
+done
 
 # 安装cmake  [mysql 5.5以上的安装编译工具]
-cd /opt/app/src
+cd $SrcDir
 tar zxf cmake-2.8.10.tar.gz
 cd cmake-2.8.10
 ./configure
 make
 make install
-cd ..
-rm -rf cmake-2.8.10
 
 # 使系统加载库文件
 echo -e "/usr/local/lib" > /etc/ld.so.conf.d/usr_local_lib.conf
 /sbin/ldconfig
 
 # 安装mysql 5.6
-cd /opt/app/src
+cd $SrcDir
 tar zxf mysql-5.6.11.tar.gz
 cd mysql-5.6.11
 cmake . \
@@ -71,3 +74,6 @@ ln -s /opt/app/mysql/lib /opt/app/mysql/lib64
 ln -s /opt/app/mysql/include /usr/include/mysql
 ln -s /tmp/mysql.sock  /var/lib/mysql/mysql.sock
 
+cd $SrcDir
+rm -rf mysql-5.6.11
+rm -rf cmake-2.8.10
