@@ -28,7 +28,7 @@ service iptables restart
 #echo -e "#SELINUX=enforcing\n#SELINUXTYPE=targeted\nSELINUX=disabled\nSETLOCALDEFS=0" > /etc/selinux/config
 
 # 一键安装脚本的 依赖包
-yum install -y make apr apr-devel apr-util apr-util-devel  autoconf automake curl curl-devel gcc gcc-c++ gtk+-devel zlib-devel openssl openssl-devel pcre-devel gd keyutils patch perl compat-glibc compat-glibc-headers  cpp glibc libgomp libstdc++-devel keyutils-libs-devel libsepol-devel libselinux-devel krb5-devel  libXpm libXpm-devel freetype freetype-devel fontconfig fontconfig-devel  libjpeg libjpeg-devel libpng libpng-devel gettext gettext-devel ncurses ncurses-devel libtool libtool-ltdl libtool-ltdl-devel libxml2 libxml2-devel patch policycoreutils bison
+yum install -y make apr apr-devel apr-util apr-util-devel  autoconf automake curl curl-devel gcc gcc-c++ gtk+-devel zlib-devel openssl openssl-devel pcre-devel keyutils patch perl compat-glibc compat-glibc-headers  cpp glibc libgomp libstdc++-devel keyutils-libs-devel libsepol-devel libselinux-devel krb5-devel  libXpm libXpm-devel freetype freetype-devel fontconfig fontconfig-devel  libjpeg libjpeg-devel libpng-devel gettext gettext-devel ncurses ncurses-devel libtool libtool-ltdl libtool-ltdl-devel libxml2 libxml2-devel patch policycoreutils bison
 
 # 将所有软件包复制到源文件src目录
 cp -r Packages/* /opt/app/src
@@ -128,6 +128,8 @@ cd gd-2.0.36RC1
 ./configure --enable-m4_pattern_allow  --prefix=/opt/app/gd  --with-jpeg=/usr/lib  --with-png=/usr/lib  --with-xpm=/usr/lib  --with-freetype=/usr/lib  --with-fontconfig=/usr/lib
 make
 make install
+
+ln -s /opt/app/gd/lib /opt/app/gd/lib64
 
 # re2c [安装php时依赖]
 cd /opt/app/src
