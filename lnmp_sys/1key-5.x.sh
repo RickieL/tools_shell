@@ -28,7 +28,7 @@ service iptables restart
 #echo -e "#SELINUX=enforcing\n#SELINUXTYPE=targeted\nSELINUX=disabled\nSETLOCALDEFS=0" > /etc/selinux/config
 
 # 一键安装脚本的 依赖包
-yum install -y make apr apr-devel apr-util apr-util-devel  autoconf automake curl curl-devel gcc gcc-c++ gtk+-devel zlib-devel openssl openssl-devel pcre-devel keyutils patch perl compat-glibc compat-glibc-headers  cpp glibc libgomp libstdc++-devel keyutils-libs-devel libsepol-devel libselinux-devel krb5-devel  libXpm libXpm-devel freetype freetype-devel fontconfig fontconfig-devel  libjpeg libjpeg-devel libpng-devel gettext gettext-devel ncurses ncurses-devel libtool libtool-ltdl libtool-ltdl-devel libxml2 libxml2-devel patch policycoreutils bison
+yum install -y make  autoconf automake curl curl-devel gcc gcc-c++ zlib-devel openssl openssl-devel pcre-devel keyutils perl compat-glibc compat-glibc-headers  cpp glibc libgomp libstdc++-devel keyutils-libs-devel libsepol-devel libselinux-devel krb5-devel gd freetype freetype-devel fontconfig fontconfig-devel  libjpeg libjpeg-devel libpng libpng-devel gettext gettext-devel ncurses ncurses-devel libtool libtool-ltdl libtool-ltdl-devel libxml2 libxml2-devel patch policycoreutils bison gmp gmp-devel
 
 # 将所有软件包复制到源文件src目录
 cp -r Packages/* /opt/app/src
@@ -40,6 +40,8 @@ cd libmcrypt-2.5.8
 ./configure
 make
 make install
+cd ..
+rm -rf libmcrypt-2.5.8
 
 # 安装cmake  [mysql 5.5以上的安装编译工具]
 cd /opt/app/src
@@ -48,14 +50,8 @@ cd cmake-2.8.10
 ./configure
 make
 make install
-
-# 安装pcre  [使nginx支持rewrite正则]
-cd /opt/app/src
-tar zxf pcre-8.32.tar.gz
-cd pcre-8.32
-./configure --prefix=/opt/app/pcre
-make
-make install
+cd ..
+rm -rf cmake-2.8.10
 
 # 安装libunwind [TCMalloc的依赖包,安装gperftools时需要]
 cd /opt/app/src
@@ -64,6 +60,9 @@ cd libunwind-1.1
 ./configure
 make
 make install
+cd ..
+rm -rf libunwind-1.1
+
 
 # 安装gperftools [google开发的，gperftools对nginx与mysql进行内存管理、性能优化、降低负载]
 cd /opt/app/src
@@ -72,6 +71,8 @@ cd gperftools-2.0
 ./configure --enable-frame-pointers
 make
 make install
+cd ..
+rm -rf gperftools-2.0
 
 # 使系统加载库文件
 echo -e "/usr/local/lib" > /etc/ld.so.conf.d/usr_local_lib.conf
@@ -87,9 +88,9 @@ cmake . \
  -DSYSCONFDIR=/etc \
  -DDEFAULT_CHARSET=utf8 \
  -DDEFAULT_COLLATION=utf8_general_ci
- 
 make
 make install
+
 /bin/mv -f /etc/my.cnf /etc/my.cnf.yongfu.bak
 cd /opt/app/mysql
 ./scripts/mysql_install_db --user=mysql --basedir=/opt/app/mysql --datadir=/data/mysql
@@ -97,6 +98,7 @@ ln -s /opt/app/mysql/my.cnf /etc/my.cnf
 cp ./support-files/mysql.server  /etc/rc.d/init.d/mysqld
 chmod 755 /etc/init.d/mysqld
 chkconfig mysqld on
+
 echo 'basedir=/opt/app/mysql/' >> /etc/rc.d/init.d/mysqld
 echo 'datadir=/data/mysql/' >>/etc/rc.d/init.d/mysqld
 service mysqld start
@@ -121,16 +123,6 @@ chmod 775 /etc/rc.d/init.d/nginx
 chkconfig nginx on
 /etc/rc.d/init.d/nginx restart
 
-# 安装gd库  [php的gd扩展依赖]
-cd /opt/app/src
-tar zxf gd-2.0.36RC1.tar.gz
-cd gd-2.0.36RC1
-./configure --enable-m4_pattern_allow  --prefix=/opt/app/gd  --with-jpeg=/usr/lib  --with-png=/usr/lib  --with-xpm=/usr/lib  --with-freetype=/usr/lib  --with-fontconfig=/usr/lib
-make
-make install
-
-ln -s /opt/app/gd/lib /opt/app/gd/lib64
-
 # re2c [安装php时依赖]
 cd /opt/app/src
 tar -zxf re2c-0.13.5.tar.gz
@@ -138,12 +130,14 @@ cd re2c-0.13.5
 ./configure
 make
 make install
+cd ..
+rm -rf re2c-0.13.5
 
 # 安装php
 cd /opt/app/src
 tar -zxf php-5.3.25.tar.gz
 cd php-5.3.25
-./configure --prefix=/opt/app/php5 --with-mysql=/opt/app/mysql --with-mysqli=/opt/app/mysql/bin/mysql_config --with-pdo-mysql=/opt/app/mysql --with-gd=/opt/app/gd --with-png-dir=/usr --with-jpeg-dir=/usr --with-freetype-dir=/usr --with-zlib --enable-bcmath --enable-shmop --with-curlwrappers --enable-fpm --enable-mbstring --enable-gd-native-ttf --with-openssl --enable-pcntl --enable-sockets --with-xmlrpc --enable-zip --enable-soap --without-pear --with-gettext --with-mcrypt --with-curl --with-libdir=lib64 --enable-sysvmsg --enable-sysvshm --enable-sysvsem --with-gmp --with-libxml-dir=/usr --enable-exif
+./configure --prefix=/opt/app/php5 --with-mysql=mysqlnd --with-pdo-mysql=mysqlnd --with-gd --with-png-dir=/usr --with-jpeg-dir=/usr --with-freetype-dir=/usr --with-zlib --with-curlwrappers --with-gettext --with-openssl --with-mcrypt --with-curl --with-libxml-dir=/usr --with-gmp --with-xmlrpc  --with-libdir=lib64 --enable-bcmath --enable-shmop  --enable-fpm --enable-mbstring --enable-gd-native-ttf --enable-exif --enable-pcntl --enable-sockets --enable-zip --enable-soap  --enable-sysvmsg --enable-sysvshm --enable-sysvsem --without-sqlite --without-pear --disable-phar
 make
 make install
 /bin/cp /opt/app/src/etc/php.ini /opt/app/php5/lib/php.ini
@@ -151,7 +145,7 @@ make install
 /bin/cp ./sapi/fpm/init.d.php-fpm  /etc/rc.d/init.d/php-fpm
 chmod +x /etc/rc.d/init.d/php-fpm
 chkconfig php-fpm on
-mkdir /opt/app/php5/log
+mkdir -p /opt/app/php5/log
 
 # 优化的默认配置
 /bin/cp /opt/app/src/etc/nginx.conf  /opt/app/nginx/conf/nginx.conf
@@ -185,14 +179,26 @@ cd /opt/app/src
 tar zxf APC-3.1.6.tgz
 cd APC-3.1.6
 /opt/app/php5/bin/phpize
-./configure --with-php-config=/opt/app/php5/bin/php-config
+./configure  --enable-apc --enable-apc-mmap --enable-apc-spinlocks --with-php-config=/opt/app/php5/bin/php-config
 make
 make install
 
+# php扩展 xdebug
+cd /opt/app/src
+tar zxf xdebug-2.2.2.tgz
+cd xdebug-2.2.2
+/opt/app/php5/bin/phpize
+./configure --enable-xdebug --with-php-config=/opt/app/php5/bin/php-config
+make
+make install
+
+# 删除解压的文件目录
+cd /opt/app/src
+rm -rf php-5.3.25
+rm -rf memcache-2.2.6 phpredis-master APC-3.1.6 xdebug-2.2.2
 # nginx测试文件
 cd /opt/app/nginx/html/
 rm -rf /opt/app/nginx/html/*
-#echo -e "<?php\nphpinfo();\n?>" > index.php
 /bin/cp /opt/app/src/etc/index.php  /opt/app/nginx/html/index.php
 /bin/cp /opt/app/src/etc/gd.php  /opt/app/nginx/html/gd.php
 /bin/cp /opt/app/src/etc/server.php  /opt/app/nginx/html/server.php
