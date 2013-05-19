@@ -28,12 +28,16 @@ yum install -y make  autoconf automake curl curl-devel gcc gcc-c++ zlib-devel op
 # 将所有软件包复制到源文件src目录
 cp -r Packages/* /opt/app/src
 
+
 # 安装mysql
+chmod +x $PwdPath/install-mysql-5.6.sh
 $PwdPath/install-mysql-5.6.sh 1script 1>/tmp/install.mysql.log 2>/tmp/install.mysql.err
 
 # 安装nginx
+chmod +x $PwdPath/install-nginx.sh
 $PwdPath/install-nginx.sh 1script 1>/tmp/install.nginx.log 2>/tmp/install.nginx.err
 
 # 安装php
+chmod +x $PwdPath/install-php-5.3.sh
 $PwdPath/install-php-5.3.sh  1script 1>/tmp/install.php.log 2>/tmp/install.php.err
 
