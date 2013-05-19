@@ -3,7 +3,6 @@
 OneSpt=$1
 SrcDir=/opt/app/src
 if [ "x$OneSpt" != "x1script" ] ;then
-do
 # 创建用户
 groupadd mysql  -g 27
 useradd -g mysql mysql  -u 27 -s /bin/false
@@ -30,7 +29,7 @@ yum install -y make  autoconf automake curl curl-devel gcc gcc-c++ zlib-devel op
 # 将所有软件包复制到源文件src目录
 cp -rf Packages/* $SrcDir
 
-done
+fi
 
 # 安装libmcrypt [php的依赖软件]
 cd $SrcDir

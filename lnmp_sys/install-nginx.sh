@@ -3,7 +3,6 @@
 OneSpt=$1
 SrcDir=/opt/app/src
 if [ "x$OneSpt" != "x1script" ] ;then
-do
 # 创建用户
 groupadd mysql  -g 27
 useradd -g mysql mysql  -u 27 -s /bin/false
@@ -30,7 +29,7 @@ yum install -y make  gcc gcc-c++ zlib-devel pcre-devel
 # 将所有软件包复制到源文件src目录
 cp -rf Packages/* $SrcDir
 
-done
+fi
 
 # 安装libunwind [TCMalloc的依赖包,安装gperftools时需要]
 cd $SrcDir
@@ -47,6 +46,9 @@ cd gperftools-2.0
 ./configure --enable-frame-pointers
 make
 make install
+
+cd $SrcDir
+tar xzf pcre-8.32.tar.gz 
 
 # 使系统加载库文件
 echo -e "/usr/local/lib" > /etc/ld.so.conf.d/usr_local_lib.conf
@@ -84,5 +86,5 @@ chown www.www /opt/app/nginx/html/ -R
 chmod 700 /opt/app/nginx/html/ -R
 
 cd $SrcDir
-rm -rf nginx-1.4.1 libunwind-1.1  gperftools-2.0
+rm -rf nginx-1.4.1 libunwind-1.1  gperftools-2.0 pcre-8.32
 

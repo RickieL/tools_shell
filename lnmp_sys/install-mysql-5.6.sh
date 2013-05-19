@@ -2,8 +2,9 @@
 
 OneSpt=$1
 SrcDir=/opt/app/src
+
+# 判断是否为一键安装脚本
 if [ "x$OneSpt" != "x1script" ] ;then
-do
 # 创建用户
 groupadd mysql  -g 27
 useradd -g mysql mysql  -u 27 -s /bin/false
@@ -29,7 +30,8 @@ yum install -y wget gcc-c++ ncurses-devel ncurses make perl
 
 # 将所有软件包复制到源文件src目录
 cp -rf Packages/* $SrcDir
-done
+
+fi
 
 # 安装cmake  [mysql 5.5以上的安装编译工具]
 cd $SrcDir
