@@ -1,0 +1,108 @@
+#!/bin/sh
+#############################
+#     For: backup a file with a uniq name
+#   Usage: bcp file_or_dir
+#  Create: Rickie Liao <rickie622 at gmail.com>
+# Version: v0.01 create  2012-02-28
+##########################################################
+
+# Usage:
+#       bcp [-h|--help] [-V|--version]
+#       bcp [-c|--confirm] dirname/filename
+
+
+error( )
+{
+    echo "$@" 1>&2
+    usage_and_exit 1
+}
+
+usage( )
+{
+    echo "Usage: bcp [-h|--help] [-V|--version] [-c|--confirm] dirname/filename"
+}
+
+usage_and_exit( )
+{
+    usage
+    exit $1
+}
+
+version( )
+{
+    echo "bcp version $Version"
+}
+
+warning( )
+{
+    echo "$@" 1>&2
+    EXITCODE=$(expr $EXITCODE + 1)
+}
+
+EXITCODE=0
+Version=0.01
+Date_time=$(date +"%Y%m%d_%H%M%S")
+Confirm="Y"
+_Confirm=
+
+
+while test $# -gt 0
+do
+    case $1 in 
+
+    --version | -V )
+    version
+    exit 0
+    ;;
+
+    --help | -h )
+    usage_and_exit 0
+    ;;
+
+    --confirm | -c )
+    _Confirm="YES"
+    ;;
+
+    -*)
+    error "Unrecognized option: $1"
+    ;;
+
+    *)
+    break
+    ;;
+
+    esac
+    shift
+done
+
+
+
+if [ $# -eq 1 ]; then
+    if [ -e $1 ]; then
+        cp_File_Dir=$1
+    else
+        error "The argument input is *not* a file or a directory, please *check* carefully!"
+    fi
+else
+    error "There is no argv or more than one argv!"
+fi
+
+
+# check if need to confirm while copying
+if [ "x$_Confirm" = "xYES" ] ; then
+    read -p "Sure to copy $cp_File_Dir [Y/n]: " Confirm
+    if [ "x$Confirm" != "xY" ] ; then
+        error " $cp_File_Dir *didn't* copy."
+    fi 
+fi        
+
+# check weather it is a directory or a file? If it is a dir, then exclude the "/", "/tmp", "/root" directories.
+if [ -d $cp_File_Dir ] ; then
+    cp_Dir="$(dirname $cp_File_Dir)/$(basename $cp_File_Dir)"
+    if [ "x$cp_Dir" = "x///" ] || [ "x$cp_Dir" = "x/tmp" ] || [ "x$cp_Dir" = "x/root" ]  || [ "x$cp_Dir" = "x//tmp" ] || [ "x$cp_Dir" = "x//root" ] ; then
+        error "The Directoris \"/\", \"/tmp\", \"/root\" are banned to copy!"
+    fi
+    cp -r  $cp_Dir $cp_Dir.$Date_time
+else
+    cp $cp_File_Dir $cp_File_Dir.$Date_time
+fi
