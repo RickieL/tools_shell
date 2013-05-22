@@ -21,7 +21,7 @@ mkdir -p /tmp/tcmalloc
 mkdir -p /opt/app/php5
 mkdir -p /opt/app/nginx/conf/vhost
 mkdir -p /tmp/phpsession
-chown -R 777 /tmp/phpsession
+chmod -R 777 /tmp/phpsession
 
 # 一键安装脚本的 依赖包
 yum install -y make  autoconf automake curl curl-devel gcc gcc-c++ zlib-devel openssl openssl-devel pcre-devel keyutils perl compat-glibc compat-glibc-headers  cpp glibc libgomp libstdc++-devel keyutils-libs-devel libsepol-devel libselinux-devel krb5-devel gd freetype freetype-devel fontconfig fontconfig-devel  libjpeg libjpeg-devel libpng libpng-devel gettext gettext-devel ncurses ncurses-devel libtool libtool-ltdl libtool-ltdl-devel libxml2 libxml2-devel patch policycoreutils bison gmp gmp-devel
