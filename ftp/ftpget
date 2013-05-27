@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# 本地目录
+LocalDir='/tmp/ftp'
+
+if [ ! -x "$LocalDir" ]; then
+    mkdir -p $LocalDir
+    chmod 777 $LocalDir
+fi
+
+# 需要传输的文件
+ftpFile=$1
+if [ -z $1 ]; then
+    echo "we need the file from ftp!"
+    echo "**usage**:  ftpget <filename> [binary]"
+    exit 2
+fi
+
+# 传输的模式
+TransMode='binary'
+if [ "x$2" == "xascii" ]; then
+    TransMode='ascii'
+fi
+
+ftp -n<<!
+open 192.168.1.25
+user yongfu mypass
+$TransMode
+cd /
+lcd $LocalDir
+prompt
+get $ftpFile $ftpFile
+close
+bye
+!
