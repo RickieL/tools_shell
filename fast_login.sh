@@ -1,7 +1,7 @@
 #!/bin/bash
 
 bj="1.1.1.1"
-bj_bkup="2.2.2.2"
+bj_bkup="2.2.3.3"
 cs="3.3.3.3"
 if [ "x$1" == "xcs" ]; then 
      cmd="ssh ${!1}"
